@@ -6,11 +6,11 @@ import { Buffer } from 'node:buffer'
 import axios from 'axios'
 import { startOfTomorrow } from 'date-fns'
 
-export default function serverIcon (client: Client<true>): void {
+export default function serverIcon(client: Client<true>): void {
   config({ path: '.env' })
   const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN,
-    timeZone: 'Australia/Sydney'
+    timeZone: 'Australia/Sydney',
   })
 
   const recentIcons: string[] = []
@@ -22,18 +22,18 @@ export default function serverIcon (client: Client<true>): void {
     return recentIcons.length
   }
 
-  async function setNewIcon (): Promise<void> {
+  async function setNewIcon(): Promise<void> {
     const newIcon = await getNewIcon()
     const cssa = await client.guilds.fetch('476382037620555776')
     await cssa.setIcon(newIcon)
   }
 
-  async function getNewIcon (): Promise<Buffer> {
+  async function getNewIcon(): Promise<Buffer> {
     // Fetch the list of icons
     const repoContents = await octokit.rest.repos.getContent({
       owner: 'anucssa',
       repo: 'cssa-pride-icons',
-      path: 'icons'
+      path: 'icons',
     })
     if (repoContents.status !== 200) {
       throw new Error('Could not get icons')
@@ -42,7 +42,10 @@ export default function serverIcon (client: Client<true>): void {
     }
 
     // Get a new icon randomly, weighted recent icons less
-    const newIcon = weightedChoice(repoContents.data, repoContents.data.map(icon => Math.max(1, iconWeight(icon.name))))
+    const newIcon = weightedChoice(
+      repoContents.data,
+      repoContents.data.map((icon) => Math.max(1, iconWeight(icon.name))),
+    )
 
     // Download the icon
     const downloadUrl = newIcon.download_url
@@ -61,7 +64,7 @@ export default function serverIcon (client: Client<true>): void {
     return buffer
   }
 
-  function timeout (): void {
+  function timeout(): void {
     void setNewIcon()
     setTimeout(() => {
       const nextDay = startOfTomorrow()
@@ -87,7 +90,7 @@ export default function serverIcon (client: Client<true>): void {
  * @returns {T} The chosen item.
  * @throws {Error} If `items` and `initialWeights` have different lengths or if the total weight is not greater than 0.
  */
-function weightedChoice<T> (items: T[], initialWeights?: number[]): T {
+function weightedChoice<T>(items: T[], initialWeights?: number[]): T {
   // Default to equal weights
   let weights = initialWeights ?? items.map(() => 1)
   if (items.length !== weights.length) {
@@ -96,7 +99,7 @@ function weightedChoice<T> (items: T[], initialWeights?: number[]): T {
   // Normalise weights
   const totalWeight = weights.reduce((a, b) => a + b)
   if (totalWeight <= 0) throw new Error('Total weight must be greater than 0')
-  weights = weights.map(weight => weight / totalWeight)
+  weights = weights.map((weight) => weight / totalWeight)
   // Get a random number
   const roll = Math.random()
   // Get the item that corresponds to that number

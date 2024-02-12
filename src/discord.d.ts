@@ -1,8 +1,10 @@
 import {
   type ChatInputCommandInteraction,
-  type Collection, type ContextMenuCommandBuilder,
-  type GuildMember, type MessageContextMenuCommandInteraction,
-  type SlashCommandBuilder
+  type Collection,
+  type ContextMenuCommandBuilder,
+  type GuildMember,
+  type MessageContextMenuCommandInteraction,
+  type SlashCommandBuilder,
 } from 'discord.js'
 
 declare module 'discord.js' {
@@ -21,6 +23,8 @@ declare global {
 
   interface ContextMenuCommandDefinition {
     data: ContextMenuCommandBuilder
-    execute: (interaction: MessageContextMenuCommandInteraction) => Promise<void>
+    execute: (
+      interaction: MessageContextMenuCommandInteraction,
+    ) => Promise<void>
   }
 }
